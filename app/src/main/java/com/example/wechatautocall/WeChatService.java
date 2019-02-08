@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
@@ -48,8 +49,16 @@ public class WeChatService extends AccessibilityService {
             public void onReceive(final Context context, final Intent intent) {
                 String action = intent.getAction();
                 if (Intent.ACTION_SCREEN_ON.equals(action)) {
-                    Shell.SU.run("input tap 1400 20");
-                    Log.i(TAG, "screen on");
+                    Log.i(TAG, "onReceive screen on");
+                    CommandResult result = Shell.SU.run("dumpsys activity | grep \"mFocusedActivity\"");
+                    Log.d(TAG, "onReceive: result =" + result);
+                    if(result.toString().contains("plugin.voip.ui.VideoActivity")) {
+                        Shell.SU.run("input tap 1400 20");
+                    } else if(result.toString().contains("com.android.launcher4/.Launcher")) {
+                        Log.d(TAG, "onReceive: at launcher");
+                    } else {
+                            Shell.SU.run("input tap 765 1995");
+                    }
                 }
             }
         };
@@ -84,7 +93,13 @@ public class WeChatService extends AccessibilityService {
 
         if(isOnWechatList(accessibilityEvent)){
             Log.d(TAG, "onAccessibilityEvent: isOnWechatList");
-            mState = ChatState.STATE_OTHER;
+            if((mState == ChatState.STATE_BECALLING)
+                    || (mState == ChatState.STATE_CALLING)
+                    || (mState == ChatState.STATE_TALKING)) {
+                CommandResult result2 = Shell.SU.run("input tap 765 1995");
+            } else {
+                mState = ChatState.STATE_OTHER;
+            }
         }
 
         if(isOnWechatChat(accessibilityEvent)){

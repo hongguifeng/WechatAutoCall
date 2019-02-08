@@ -2,18 +2,23 @@
 
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.content.Context;
+import android.content.Intent;
+import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.view.accessibility.AccessibilityManager;
+import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.List;
 
  public class MainActivity extends AppCompatActivity
-         implements AccessibilityManager.AccessibilityStateChangeListener{
+         implements AccessibilityManager.AccessibilityStateChangeListener, Button.OnClickListener{
 
      private TextView pluginStatusText;
+     private Button button;
 
      private AccessibilityManager accessibilityManager;
 
@@ -22,6 +27,8 @@ import java.util.List;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         pluginStatusText = findViewById(R.id.layout_control_accessibility_text);
+        button = findViewById(R.id.button);
+        button.setOnClickListener(this);
 
         accessibilityManager = (AccessibilityManager) getSystemService(Context.ACCESSIBILITY_SERVICE);
         accessibilityManager.addAccessibilityStateChangeListener(this);
@@ -51,5 +58,11 @@ import java.util.List;
              }
          }
          return false;
+     }
+
+     @Override
+     public void onClick(View v) {
+         Intent accessibleIntent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+         startActivity(accessibleIntent);
      }
  }
